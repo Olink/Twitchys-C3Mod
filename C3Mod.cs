@@ -456,14 +456,19 @@ namespace C3Mod
         {
             if (C3Config.C3TeamsLocked)
             {
-                foreach (C3Player player in C3Mod.C3Players)
+                lock (C3Players)
                 {
-                    if (player.GameType == "")
+                    foreach (C3Player player in C3Mod.C3Players)
                     {
-                        if (Main.player[player.Index].team == C3Config.TeamColor1 || Main.player[player.Index].team == C3Config.TeamColor2)
+                        if (player.GameType == "")
                         {
-                            player.SendMessage("This team is reserved for C3Mod, switching you to neutral", Color.DarkCyan);
-                            TShock.Players[player.Index].SetTeam(0);
+                            if (Main.player[player.Index].team == C3Config.TeamColor1 ||
+                                Main.player[player.Index].team == C3Config.TeamColor2)
+                            {
+                                player.SendMessage("This team is reserved for C3Mod, switching you to neutral",
+                                                   Color.DarkCyan);
+                                TShock.Players[player.Index].SetTeam(0);
+                            }
                         }
                     }
                 }
