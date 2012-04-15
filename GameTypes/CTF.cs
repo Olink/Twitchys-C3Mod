@@ -138,121 +138,160 @@ namespace C3Mod.GameTypes
                 {
                     int team1players = 0;
                     int team2players = 0;
-
-                    foreach (C3Player player in C3Mod.C3Players)
+                    lock (C3Mod.C3Players)
                     {
-                        if (player.TSPlayer == null)
+                        foreach (C3Player player in C3Mod.C3Players)
                         {
-                            C3Mod.C3Players.Remove(player);
-                            break;
-                        }
-
-                        if (player.GameType == "ctf")
-                        {
-                            if (!player.TSPlayer.TpLock)
-                                if (C3Mod.C3Config.TPLockEnabled) { player.TSPlayer.TpLock = true; }
-
-                            if (player.Team == 1)
-                                team1players++;
-                            else if (player.Team == 2)
-                                team2players++;
-                            if ((player.Team == 1 && Main.player[player.Index].team != C3Mod.C3Config.TeamColor1))
-                                TShock.Players[player.Index].SetTeam(C3Mod.C3Config.TeamColor1);
-                            if ((player.Team == 2 && Main.player[player.Index].team != C3Mod.C3Config.TeamColor2))
-                                TShock.Players[player.Index].SetTeam(C3Mod.C3Config.TeamColor2);
-                            if (!Main.player[player.Index].hostile)
+                            if (player.TSPlayer == null)
                             {
-                                Main.player[player.Index].hostile = true;
-                                NetMessage.SendData((int)PacketTypes.TogglePvp, -1, -1, "", player.Index, 0f, 0f, 0f);
+                                C3Mod.C3Players.Remove(player);
+                                break;
                             }
 
-                            //Respawn on flag
-                            if (Main.player[player.Index].dead)
-                                player.Dead = true;
-                            else
+                            if (player.GameType == "ctf")
                             {
-                                if (player.Dead)
-                                {
-                                    player.Dead = false;
-                                    player.TSPlayer.TpLock = false;
-                                    if (player.Team == 1)
-                                        TShock.Players[player.Index].Teleport((int)spawnPoints[0].X, (int)spawnPoints[0].Y);
-                                    else if (player.Team == 2)
-                                        TShock.Players[player.Index].Teleport((int)spawnPoints[1].X, (int)spawnPoints[1].Y);
-                                    NetMessage.SendData(4, -1, player.Index, player.PlayerName, player.Index, 0f, 0f, 0f, 0);
-                                    if (C3Mod.C3Config.TPLockEnabled) { player.TSPlayer.TpLock = true; }
-                                }
-                            }
-
-                            //Grab flag
-                            if (!player.Dead)
-                            {
-                                if (player.Team == 1 && Team1FlagCarrier == null)
-                                {
-                                    if ((int)player.tileX >= flagPoints[1].X - 2 && (int)player.tileX <= flagPoints[1].X + 2 && (int)player.tileY == (int)(flagPoints[1].Y - 3))
+                                if (!player.TSPlayer.TpLock)
+                                    if (C3Mod.C3Config.TPLockEnabled)
                                     {
-                                        Team1FlagCarrier = player;
-                                        switch (C3Mod.C3Config.TeamColor1)
+                                        player.TSPlayer.TpLock = true;
+                                    }
+
+                                if (player.Team == 1)
+                                    team1players++;
+                                else if (player.Team == 2)
+                                    team2players++;
+                                if ((player.Team == 1 && Main.player[player.Index].team != C3Mod.C3Config.TeamColor1))
+                                    TShock.Players[player.Index].SetTeam(C3Mod.C3Config.TeamColor1);
+                                if ((player.Team == 2 && Main.player[player.Index].team != C3Mod.C3Config.TeamColor2))
+                                    TShock.Players[player.Index].SetTeam(C3Mod.C3Config.TeamColor2);
+                                if (!Main.player[player.Index].hostile)
+                                {
+                                    Main.player[player.Index].hostile = true;
+                                    NetMessage.SendData((int) PacketTypes.TogglePvp, -1, -1, "", player.Index, 0f, 0f,
+                                                        0f);
+                                }
+
+                                //Respawn on flag
+                                if (Main.player[player.Index].dead)
+                                    player.Dead = true;
+                                else
+                                {
+                                    if (player.Dead)
+                                    {
+                                        player.Dead = false;
+                                        player.TSPlayer.TpLock = false;
+                                        if (player.Team == 1)
+                                            TShock.Players[player.Index].Teleport((int) spawnPoints[0].X,
+                                                                                  (int) spawnPoints[0].Y);
+                                        else if (player.Team == 2)
+                                            TShock.Players[player.Index].Teleport((int) spawnPoints[1].X,
+                                                                                  (int) spawnPoints[1].Y);
+                                        NetMessage.SendData(4, -1, player.Index, player.PlayerName, player.Index, 0f, 0f,
+                                                            0f, 0);
+                                        if (C3Mod.C3Config.TPLockEnabled)
                                         {
-                                            case 1:
-                                                {
-                                                    C3Tools.BroadcastMessageToGametype("ctf", Main.player[player.Index].name + " has the flag!", Color.OrangeRed);
-                                                    break;
-                                                }
-                                            case 2:
-                                                {
-                                                    C3Tools.BroadcastMessageToGametype("ctf", Main.player[player.Index].name + " has the flag!", Color.LightGreen);
-                                                    break;
-                                                }
-                                            case 3:
-                                                {
-                                                    C3Tools.BroadcastMessageToGametype("ctf", Main.player[player.Index].name + " has the flag!", Color.LightBlue);
-                                                    break;
-                                                }
-                                            case 4:
-                                                {
-                                                    C3Tools.BroadcastMessageToGametype("ctf", Main.player[player.Index].name + " has the flag!", Color.LightYellow);
-                                                    break;
-                                                }
+                                            player.TSPlayer.TpLock = true;
                                         }
-                                        C3Events.FlagGrabbed(player, "ctf");
                                     }
                                 }
-                                if (player.Team == 2 && Team2FlagCarrier == null)
+
+                                //Grab flag
+                                if (!player.Dead)
                                 {
-                                    if ((int)player.tileX >= flagPoints[0].X - 2 && (int)player.tileX <= flagPoints[0].X + 2 && (int)player.tileY == (int)(flagPoints[0].Y - 3))
+                                    if (player.Team == 1 && Team1FlagCarrier == null)
                                     {
-                                        Team2FlagCarrier = player;
-                                        switch (C3Mod.C3Config.TeamColor2)
+                                        if ((int) player.tileX >= flagPoints[1].X - 2 &&
+                                            (int) player.tileX <= flagPoints[1].X + 2 &&
+                                            (int) player.tileY == (int) (flagPoints[1].Y - 3))
                                         {
-                                            case 1:
-                                                {
-                                                    C3Tools.BroadcastMessageToGametype("ctf", Main.player[player.Index].name + " has the flag!", Color.OrangeRed);
-                                                    break;
-                                                }
-                                            case 2:
-                                                {
-                                                    C3Tools.BroadcastMessageToGametype("ctf", Main.player[player.Index].name + " has the flag!", Color.LightGreen);
-                                                    break;
-                                                }
-                                            case 3:
-                                                {
-                                                    C3Tools.BroadcastMessageToGametype("ctf", Main.player[player.Index].name + " has the flag!", Color.LightBlue);
-                                                    break;
-                                                }
-                                            case 4:
-                                                {
-                                                    C3Tools.BroadcastMessageToGametype("ctf", Main.player[player.Index].name + " has the flag!", Color.LightYellow);
-                                                    break;
-                                                }
+                                            Team1FlagCarrier = player;
+                                            switch (C3Mod.C3Config.TeamColor1)
+                                            {
+                                                case 1:
+                                                    {
+                                                        C3Tools.BroadcastMessageToGametype("ctf",
+                                                                                           Main.player[player.Index].
+                                                                                               name + " has the flag!",
+                                                                                           Color.OrangeRed);
+                                                        break;
+                                                    }
+                                                case 2:
+                                                    {
+                                                        C3Tools.BroadcastMessageToGametype("ctf",
+                                                                                           Main.player[player.Index].
+                                                                                               name + " has the flag!",
+                                                                                           Color.LightGreen);
+                                                        break;
+                                                    }
+                                                case 3:
+                                                    {
+                                                        C3Tools.BroadcastMessageToGametype("ctf",
+                                                                                           Main.player[player.Index].
+                                                                                               name + " has the flag!",
+                                                                                           Color.LightBlue);
+                                                        break;
+                                                    }
+                                                case 4:
+                                                    {
+                                                        C3Tools.BroadcastMessageToGametype("ctf",
+                                                                                           Main.player[player.Index].
+                                                                                               name + " has the flag!",
+                                                                                           Color.LightYellow);
+                                                        break;
+                                                    }
+                                            }
+                                            C3Events.FlagGrabbed(player, "ctf");
                                         }
-                                        C3Events.FlagGrabbed(player, "ctf");
+                                    }
+                                    if (player.Team == 2 && Team2FlagCarrier == null)
+                                    {
+                                        if ((int) player.tileX >= flagPoints[0].X - 2 &&
+                                            (int) player.tileX <= flagPoints[0].X + 2 &&
+                                            (int) player.tileY == (int) (flagPoints[0].Y - 3))
+                                        {
+                                            Team2FlagCarrier = player;
+                                            switch (C3Mod.C3Config.TeamColor2)
+                                            {
+                                                case 1:
+                                                    {
+                                                        C3Tools.BroadcastMessageToGametype("ctf",
+                                                                                           Main.player[player.Index].
+                                                                                               name + " has the flag!",
+                                                                                           Color.OrangeRed);
+                                                        break;
+                                                    }
+                                                case 2:
+                                                    {
+                                                        C3Tools.BroadcastMessageToGametype("ctf",
+                                                                                           Main.player[player.Index].
+                                                                                               name + " has the flag!",
+                                                                                           Color.LightGreen);
+                                                        break;
+                                                    }
+                                                case 3:
+                                                    {
+                                                        C3Tools.BroadcastMessageToGametype("ctf",
+                                                                                           Main.player[player.Index].
+                                                                                               name + " has the flag!",
+                                                                                           Color.LightBlue);
+                                                        break;
+                                                    }
+                                                case 4:
+                                                    {
+                                                        C3Tools.BroadcastMessageToGametype("ctf",
+                                                                                           Main.player[player.Index].
+                                                                                               name + " has the flag!",
+                                                                                           Color.LightYellow);
+                                                        break;
+                                                    }
+                                            }
+                                            C3Events.FlagGrabbed(player, "ctf");
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-
                     if (team1players == 0 || team2players == 0)
                     {
                         C3Tools.BroadcastMessageToGametype("ctf", "Capture the Flag stopped, Not enough players to continue", Color.DarkCyan);

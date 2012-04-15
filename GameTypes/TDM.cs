@@ -179,65 +179,74 @@ namespace C3Mod.GameTypes
                         }
                         scoreNotify = DateTime.UtcNow;
                     }
-
-                    foreach (C3Player player in C3Mod.C3Players)
+                    lock (C3Mod.C3Players)
                     {
-                        if (player.TSPlayer == null)
+                        foreach (C3Player player in C3Mod.C3Players)
                         {
-                            C3Mod.C3Players.Remove(player);
-                            break;
-                        }
-
-                        if (player.GameType == "tdm")
-                        {
-                            if (!player.TSPlayer.TpLock)
-                                if (C3Mod.C3Config.TPLockEnabled) { player.TSPlayer.TpLock = true; }
-
-                            if (player.Team == 7)
-                                Team1Players++;
-                            else if (player.Team == 8)
-                                Team2Players++;
-
-                            if ((player.Team == 7 && Main.player[player.Index].team != C3Mod.C3Config.TeamColor1))
-                                TShock.Players[player.Index].SetTeam(C3Mod.C3Config.TeamColor1);
-                            if ((player.Team == 8 && Main.player[player.Index].team != C3Mod.C3Config.TeamColor2))
-                                TShock.Players[player.Index].SetTeam(C3Mod.C3Config.TeamColor2);
-
-                            if (!Main.player[player.Index].hostile)
+                            if (player.TSPlayer == null)
                             {
-                                Main.player[player.Index].hostile = true;
-                                NetMessage.SendData((int)PacketTypes.TogglePvp, -1, -1, "", player.Index, 0f, 0f, 0f);
+                                C3Mod.C3Players.Remove(player);
+                                break;
                             }
 
-                            //Respawn on flag
-                            if (Main.player[player.Index].dead && !player.Dead)
+                            if (player.GameType == "tdm")
                             {
-                                if (player.Team == 7)
-                                {
-                                    Team2Score++;
-                                    player.Dead = true;
-                                }
-                                else if (player.Team == 8)
-                                {
-                                    Team1Score++;
-                                    player.Dead = true;
-                                }
-                            }
+                                if (!player.TSPlayer.TpLock)
+                                    if (C3Mod.C3Config.TPLockEnabled)
+                                    {
+                                        player.TSPlayer.TpLock = true;
+                                    }
 
-                            if (!Main.player[player.Index].dead && player.Dead)
-                            {
-                                player.Dead = false;
-                                player.TSPlayer.TpLock = false;
                                 if (player.Team == 7)
-                                    TShock.Players[player.Index].Teleport((int)TDMSpawns[0].X, (int)TDMSpawns[0].Y);
+                                    Team1Players++;
                                 else if (player.Team == 8)
-                                    TShock.Players[player.Index].Teleport((int)TDMSpawns[1].X, (int)TDMSpawns[1].Y);
-                                NetMessage.SendData(4, -1, player.Index, player.PlayerName, player.Index, 0f, 0f, 0f, 0);
-                                if (C3Mod.C3Config.TPLockEnabled) { player.TSPlayer.TpLock = true; }
+                                    Team2Players++;
+
+                                if ((player.Team == 7 && Main.player[player.Index].team != C3Mod.C3Config.TeamColor1))
+                                    TShock.Players[player.Index].SetTeam(C3Mod.C3Config.TeamColor1);
+                                if ((player.Team == 8 && Main.player[player.Index].team != C3Mod.C3Config.TeamColor2))
+                                    TShock.Players[player.Index].SetTeam(C3Mod.C3Config.TeamColor2);
+
+                                if (!Main.player[player.Index].hostile)
+                                {
+                                    Main.player[player.Index].hostile = true;
+                                    NetMessage.SendData((int) PacketTypes.TogglePvp, -1, -1, "", player.Index, 0f, 0f,
+                                                        0f);
+                                }
+
+                                //Respawn on flag
+                                if (Main.player[player.Index].dead && !player.Dead)
+                                {
+                                    if (player.Team == 7)
+                                    {
+                                        Team2Score++;
+                                        player.Dead = true;
+                                    }
+                                    else if (player.Team == 8)
+                                    {
+                                        Team1Score++;
+                                        player.Dead = true;
+                                    }
+                                }
+
+                                if (!Main.player[player.Index].dead && player.Dead)
+                                {
+                                    player.Dead = false;
+                                    player.TSPlayer.TpLock = false;
+                                    if (player.Team == 7)
+                                        TShock.Players[player.Index].Teleport((int) TDMSpawns[0].X, (int) TDMSpawns[0].Y);
+                                    else if (player.Team == 8)
+                                        TShock.Players[player.Index].Teleport((int) TDMSpawns[1].X, (int) TDMSpawns[1].Y);
+                                    NetMessage.SendData(4, -1, player.Index, player.PlayerName, player.Index, 0f, 0f, 0f,
+                                                        0);
+                                    if (C3Mod.C3Config.TPLockEnabled)
+                                    {
+                                        player.TSPlayer.TpLock = true;
+                                    }
+                                }
                             }
                         }
                     }
-
                     if (Team1Players == 0 || Team2Players == 0)
                     {
                         C3Tools.BroadcastMessageToGametype("tdm", "Not enough players to continue, ending game", Color.DarkCyan);

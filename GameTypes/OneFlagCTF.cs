@@ -131,121 +131,166 @@ namespace C3Mod.GameTypes
                 {
                     int team1players = 0;
                     int team2players = 0;
-
-                    foreach (C3Player player in C3Mod.C3Players)
+                    lock (C3Mod.C3Players)
                     {
-                        if (player.TSPlayer == null)
+                        foreach (C3Player player in C3Mod.C3Players)
                         {
-                            C3Mod.C3Players.Remove(player);
-                            break;
-                        }
-
-                        if (player.GameType == "oneflag")
-                        {
-                            if (!player.TSPlayer.TpLock)
-                                if (C3Mod.C3Config.TPLockEnabled) { player.TSPlayer.TpLock = true; }
-
-                            if (player.Team == 5)
-                                team1players++;
-                            else if (player.Team == 6)
-                                team2players++;
-
-                            if ((player.Team == 5 && Main.player[player.Index].team != C3Mod.C3Config.TeamColor1))
-                                TShock.Players[player.Index].SetTeam(C3Mod.C3Config.TeamColor1);
-                            else if (player.Team == 6 && Main.player[player.Index].team != C3Mod.C3Config.TeamColor2)
-                                TShock.Players[player.Index].SetTeam(C3Mod.C3Config.TeamColor2);
-
-                            if (!Main.player[player.Index].hostile)
+                            if (player.TSPlayer == null)
                             {
-                                Main.player[player.Index].hostile = true;
-                                NetMessage.SendData((int)PacketTypes.TogglePvp, -1, -1, "", player.Index, 0f, 0f, 0f);
+                                C3Mod.C3Players.Remove(player);
+                                break;
                             }
 
-                            //Respawn on flag
-                            if (Main.player[player.Index].dead)
-                                player.Dead = true;
-                            else
+                            if (player.GameType == "oneflag")
                             {
-                                if (player.Dead)
-                                {
-                                    player.Dead = false;
-                                    player.TSPlayer.TpLock = false;
-
-                                    if (player.Team == 5)
-                                        TShock.Players[player.Index].Teleport((int)SpawnPoint[0].X, (int)SpawnPoint[0].Y);
-                                    else if (player.Team == 6)
-                                        TShock.Players[player.Index].Teleport((int)SpawnPoint[1].X, (int)SpawnPoint[1].Y);
-                                    NetMessage.SendData(4, -1, player.Index, player.PlayerName, player.Index, 0f, 0f, 0f, 0);
-                                    if (C3Mod.C3Config.TPLockEnabled) { player.TSPlayer.TpLock = true; }
-                                }
-                            }
-
-                            //Grab flag
-                            if (!player.Dead)
-                            {
-                                if (FlagCarrier == null)
-                                {
-                                    if ((int)player.tileX <= (int)FlagPoint.X + 2 && (int)player.tileX >= (int)FlagPoint.X - 2 && (int)player.tileY == (int)FlagPoint.Y - 3)
+                                if (!player.TSPlayer.TpLock)
+                                    if (C3Mod.C3Config.TPLockEnabled)
                                     {
-                                        FlagCarrier = player;
+                                        player.TSPlayer.TpLock = true;
+                                    }
+
+                                if (player.Team == 5)
+                                    team1players++;
+                                else if (player.Team == 6)
+                                    team2players++;
+
+                                if ((player.Team == 5 && Main.player[player.Index].team != C3Mod.C3Config.TeamColor1))
+                                    TShock.Players[player.Index].SetTeam(C3Mod.C3Config.TeamColor1);
+                                else if (player.Team == 6 && Main.player[player.Index].team != C3Mod.C3Config.TeamColor2)
+                                    TShock.Players[player.Index].SetTeam(C3Mod.C3Config.TeamColor2);
+
+                                if (!Main.player[player.Index].hostile)
+                                {
+                                    Main.player[player.Index].hostile = true;
+                                    NetMessage.SendData((int) PacketTypes.TogglePvp, -1, -1, "", player.Index, 0f, 0f,
+                                                        0f);
+                                }
+
+                                //Respawn on flag
+                                if (Main.player[player.Index].dead)
+                                    player.Dead = true;
+                                else
+                                {
+                                    if (player.Dead)
+                                    {
+                                        player.Dead = false;
+                                        player.TSPlayer.TpLock = false;
 
                                         if (player.Team == 5)
-                                        {
-                                            switch (C3Mod.C3Config.TeamColor1)
-                                            {
-                                                case 1:
-                                                    {
-                                                        C3Tools.BroadcastMessageToGametype("oneflag", Main.player[player.Index].name + " has the flag!", Color.OrangeRed);
-                                                        break;
-                                                    }
-                                                case 2:
-                                                    {
-                                                        C3Tools.BroadcastMessageToGametype("oneflag", Main.player[player.Index].name + " has the flag!", Color.LightGreen);
-                                                        break;
-                                                    }
-                                                case 3:
-                                                    {
-                                                        C3Tools.BroadcastMessageToGametype("oneflag", Main.player[player.Index].name + " has the flag!", Color.LightBlue);
-                                                        break;
-                                                    }
-                                                case 4:
-                                                    {
-                                                        C3Tools.BroadcastMessageToGametype("oneflag", Main.player[player.Index].name + " has the flag!", Color.LightYellow);
-                                                        break;
-                                                    }
-                                            }
-                                        }
+                                            TShock.Players[player.Index].Teleport((int) SpawnPoint[0].X,
+                                                                                  (int) SpawnPoint[0].Y);
                                         else if (player.Team == 6)
-                                            switch (C3Mod.C3Config.TeamColor2)
+                                            TShock.Players[player.Index].Teleport((int) SpawnPoint[1].X,
+                                                                                  (int) SpawnPoint[1].Y);
+                                        NetMessage.SendData(4, -1, player.Index, player.PlayerName, player.Index, 0f, 0f,
+                                                            0f, 0);
+                                        if (C3Mod.C3Config.TPLockEnabled)
+                                        {
+                                            player.TSPlayer.TpLock = true;
+                                        }
+                                    }
+                                }
+
+                                //Grab flag
+                                if (!player.Dead)
+                                {
+                                    if (FlagCarrier == null)
+                                    {
+                                        if ((int) player.tileX <= (int) FlagPoint.X + 2 &&
+                                            (int) player.tileX >= (int) FlagPoint.X - 2 &&
+                                            (int) player.tileY == (int) FlagPoint.Y - 3)
+                                        {
+                                            FlagCarrier = player;
+
+                                            if (player.Team == 5)
                                             {
-                                                case 1:
-                                                    {
-                                                        C3Tools.BroadcastMessageToGametype("oneflag", Main.player[player.Index].name + " has the flag!", Color.OrangeRed);
-                                                        break;
-                                                    }
-                                                case 2:
-                                                    {
-                                                        C3Tools.BroadcastMessageToGametype("oneflag", Main.player[player.Index].name + " has the flag!", Color.LightGreen);
-                                                        break;
-                                                    }
-                                                case 3:
-                                                    {
-                                                        C3Tools.BroadcastMessageToGametype("oneflag", Main.player[player.Index].name + " has the flag!", Color.LightBlue);
-                                                        break;
-                                                    }
-                                                case 4:
-                                                    {
-                                                        C3Tools.BroadcastMessageToGametype("oneflag", Main.player[player.Index].name + " has the flag!", Color.LightYellow);
-                                                        break;
-                                                    }
+                                                switch (C3Mod.C3Config.TeamColor1)
+                                                {
+                                                    case 1:
+                                                        {
+                                                            C3Tools.BroadcastMessageToGametype("oneflag",
+                                                                                               Main.player[player.Index]
+                                                                                                   .name +
+                                                                                               " has the flag!",
+                                                                                               Color.OrangeRed);
+                                                            break;
+                                                        }
+                                                    case 2:
+                                                        {
+                                                            C3Tools.BroadcastMessageToGametype("oneflag",
+                                                                                               Main.player[player.Index]
+                                                                                                   .name +
+                                                                                               " has the flag!",
+                                                                                               Color.LightGreen);
+                                                            break;
+                                                        }
+                                                    case 3:
+                                                        {
+                                                            C3Tools.BroadcastMessageToGametype("oneflag",
+                                                                                               Main.player[player.Index]
+                                                                                                   .name +
+                                                                                               " has the flag!",
+                                                                                               Color.LightBlue);
+                                                            break;
+                                                        }
+                                                    case 4:
+                                                        {
+                                                            C3Tools.BroadcastMessageToGametype("oneflag",
+                                                                                               Main.player[player.Index]
+                                                                                                   .name +
+                                                                                               " has the flag!",
+                                                                                               Color.LightYellow);
+                                                            break;
+                                                        }
+                                                }
                                             }
-                                        C3Events.FlagGrabbed(FlagCarrier, "oneflag");
+                                            else if (player.Team == 6)
+                                                switch (C3Mod.C3Config.TeamColor2)
+                                                {
+                                                    case 1:
+                                                        {
+                                                            C3Tools.BroadcastMessageToGametype("oneflag",
+                                                                                               Main.player[player.Index]
+                                                                                                   .name +
+                                                                                               " has the flag!",
+                                                                                               Color.OrangeRed);
+                                                            break;
+                                                        }
+                                                    case 2:
+                                                        {
+                                                            C3Tools.BroadcastMessageToGametype("oneflag",
+                                                                                               Main.player[player.Index]
+                                                                                                   .name +
+                                                                                               " has the flag!",
+                                                                                               Color.LightGreen);
+                                                            break;
+                                                        }
+                                                    case 3:
+                                                        {
+                                                            C3Tools.BroadcastMessageToGametype("oneflag",
+                                                                                               Main.player[player.Index]
+                                                                                                   .name +
+                                                                                               " has the flag!",
+                                                                                               Color.LightBlue);
+                                                            break;
+                                                        }
+                                                    case 4:
+                                                        {
+                                                            C3Tools.BroadcastMessageToGametype("oneflag",
+                                                                                               Main.player[player.Index]
+                                                                                                   .name +
+                                                                                               " has the flag!",
+                                                                                               Color.LightYellow);
+                                                            break;
+                                                        }
+                                                }
+                                            C3Events.FlagGrabbed(FlagCarrier, "oneflag");
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-
                     if (team1players == 0 || team2players == 0)
                     {
                         C3Tools.BroadcastMessageToGametype("oneflag", "One Flag CTF stopped, Not enough players to continue", Color.DarkCyan);

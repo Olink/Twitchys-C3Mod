@@ -130,77 +130,88 @@ namespace C3Mod.GameTypes
                     int players = 0;
 
                     double tick = (DateTime.UtcNow - scoreNotify).TotalMilliseconds;
-
-                    foreach (C3Player player in C3Mod.C3Players)
+                    lock (C3Mod.C3Players)
                     {
-                        if (player.TSPlayer == null)
+                        foreach (C3Player player in C3Mod.C3Players)
                         {
-                            C3Mod.C3Players.Remove(player);
-                            break;
-                        }
-
-                        if (player.GameType == "ffa")
-                        {
-                            if (!player.TSPlayer.TpLock)
-                                if (C3Mod.C3Config.TPLockEnabled) { player.TSPlayer.TpLock = true; }
-
-                            players++;
-
-                            if (Main.player[player.Index].team != 0)
-                                TShock.Players[player.Index].SetTeam(0);
-
-                            if (!Main.player[player.Index].hostile)
+                            if (player.TSPlayer == null)
                             {
-                                Main.player[player.Index].hostile = true;
-                                NetMessage.SendData((int)PacketTypes.TogglePvp, -1, -1, "", player.Index, 0f, 0f, 0f);
+                                C3Mod.C3Players.Remove(player);
+                                break;
                             }
 
-                            double tick2 = (DateTime.UtcNow - player.LastSpawn).TotalMilliseconds;
-
-                            if (player.SpawnProtectionEnabled && tick2 >= (C3Mod.C3Config.FFASpawnProtectionTime * 1000))
+                            if (player.GameType == "ffa")
                             {
-                                player.SpawnProtectionEnabled = false;
-                            }
-
-                            if (!Main.player[player.Index].dead && player.Dead)
-                            {
-                                player.LastSpawn = DateTime.UtcNow;
-                                player.SpawnProtectionEnabled = true;
-                                player.Dead = false;
-                                player.TSPlayer.TpLock = false;
-                                TShock.Players[player.Index].Teleport((int)FFASpawn.X, (int)FFASpawn.Y);
-                                NetMessage.SendData(4, -1, player.Index, player.PlayerName, player.Index, 0f, 0f, 0f, 0);
-                                if (C3Mod.C3Config.TPLockEnabled) { player.TSPlayer.TpLock = true; }
-                            }
-
-                            if (player.FFAScore == C3Mod.C3Config.FFAScorelimit)
-                            {
-                                FFARunning = false;
-                                C3Tools.BroadcastMessageToGametype("ffa", player.TSPlayer.Name + " WINS!", Color.LightBlue);
-
-                                List<C3Player> LostPlayers = new List<C3Player>();
-                                List<C3Player> Winner = new List<C3Player>();
-                                Winner.Add(player);
-
-                                foreach (C3Player player1 in C3Mod.C3Players)
-                                {
-                                    if (player1.GameType == "ffa")
+                                if (!player.TSPlayer.TpLock)
+                                    if (C3Mod.C3Config.TPLockEnabled)
                                     {
-                                        if (player1 != player)
-                                            LostPlayers.Add(player);
+                                        player.TSPlayer.TpLock = true;
+                                    }
+
+                                players++;
+
+                                if (Main.player[player.Index].team != 0)
+                                    TShock.Players[player.Index].SetTeam(0);
+
+                                if (!Main.player[player.Index].hostile)
+                                {
+                                    Main.player[player.Index].hostile = true;
+                                    NetMessage.SendData((int) PacketTypes.TogglePvp, -1, -1, "", player.Index, 0f, 0f,
+                                                        0f);
+                                }
+
+                                double tick2 = (DateTime.UtcNow - player.LastSpawn).TotalMilliseconds;
+
+                                if (player.SpawnProtectionEnabled &&
+                                    tick2 >= (C3Mod.C3Config.FFASpawnProtectionTime*1000))
+                                {
+                                    player.SpawnProtectionEnabled = false;
+                                }
+
+                                if (!Main.player[player.Index].dead && player.Dead)
+                                {
+                                    player.LastSpawn = DateTime.UtcNow;
+                                    player.SpawnProtectionEnabled = true;
+                                    player.Dead = false;
+                                    player.TSPlayer.TpLock = false;
+                                    TShock.Players[player.Index].Teleport((int) FFASpawn.X, (int) FFASpawn.Y);
+                                    NetMessage.SendData(4, -1, player.Index, player.PlayerName, player.Index, 0f, 0f, 0f,
+                                                        0);
+                                    if (C3Mod.C3Config.TPLockEnabled)
+                                    {
+                                        player.TSPlayer.TpLock = true;
                                     }
                                 }
 
-                                C3Events.GameEnd(Winner, LostPlayers, "ffa", player.FFAScore, -1);
+                                if (player.FFAScore == C3Mod.C3Config.FFAScorelimit)
+                                {
+                                    FFARunning = false;
+                                    C3Tools.BroadcastMessageToGametype("ffa", player.TSPlayer.Name + " WINS!",
+                                                                       Color.LightBlue);
 
-                                TpToSpawns(false);
-                                C3Tools.ResetGameType("ffa");
-                                TDM.TDMSpawns = new Vector2[2];
-                                return;
+                                    List<C3Player> LostPlayers = new List<C3Player>();
+                                    List<C3Player> Winner = new List<C3Player>();
+                                    Winner.Add(player);
+
+                                    foreach (C3Player player1 in C3Mod.C3Players)
+                                    {
+                                        if (player1.GameType == "ffa")
+                                        {
+                                            if (player1 != player)
+                                                LostPlayers.Add(player);
+                                        }
+                                    }
+
+                                    C3Events.GameEnd(Winner, LostPlayers, "ffa", player.FFAScore, -1);
+
+                                    TpToSpawns(false);
+                                    C3Tools.ResetGameType("ffa");
+                                    TDM.TDMSpawns = new Vector2[2];
+                                    return;
+                                }
                             }
                         }
                     }
-
                     if (players == 1)
                     {
                         C3Tools.BroadcastMessageToGametype("ffa", "Not enough players to continue, ending game", Color.DarkCyan);
