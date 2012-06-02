@@ -15,7 +15,7 @@ using TShockAPI.DB;
 
 namespace C3Mod
 {
-    [APIVersion(1, 11)]
+    [APIVersion(1, 12)]
     public class C3Mod : TerrariaPlugin
     {
         public static C3ConfigFile C3Config { get; set; }
