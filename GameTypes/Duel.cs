@@ -20,7 +20,7 @@ namespace C3Mod.GameTypes
         public static C3Player Team1Player;
         public static C3Player Team2Player;
 
-        public static void OnUpdate()
+        public static void OnUpdate(EventArgs args)
         {
             lock (C3Mod.C3Players)
             {

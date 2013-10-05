@@ -25,7 +25,7 @@ namespace C3Mod.GameTypes
         public static int StartCount = 5;
         public static int VoteCount = 0;
 
-        public static void OnUpdate()
+        public static void OnUpdate(EventArgs args)
         {
             lock (C3Mod.C3Players)
             {

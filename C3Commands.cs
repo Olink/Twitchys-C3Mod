@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Linq;
-using System.Threading;
 using Terraria;
-using Hooks;
 using TShockAPI;
 using TShockAPI.DB;
 using C3Mod.GameTypes;

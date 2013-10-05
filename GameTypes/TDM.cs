@@ -19,7 +19,7 @@ namespace C3Mod.GameTypes
         public static int Team1Score = 0;
         public static int Team2Score = 0;
 
-        public static void OnUpdate()
+		public static void OnUpdate(EventArgs args)
         {
             lock (C3Mod.C3Players)
             {

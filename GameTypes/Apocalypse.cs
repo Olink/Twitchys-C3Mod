@@ -26,7 +26,7 @@ namespace C3Mod.GameTypes
         public static int LastMonster = 0;
         public static int playersdead = 0;
 
-        public static void OnUpdate()
+		public static void OnUpdate(EventArgs args)
         {
             if (C3Mod.VoteRunning && C3Mod.VoteType == "apoc")
             {

@@ -1,21 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Xml;
 using System.Reflection;
-using System.Data;
 using Terraria;
-using Hooks;
 using MySql.Data.MySqlClient;
-using System.Threading;
 using System.ComponentModel;
 using C3Mod.GameTypes;
 using System.IO;
+using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.DB;
 
 namespace C3Mod
 {
-    [APIVersion(1, 12)]
+    [ApiVersion(1, 14)]
     public class C3Mod : TerrariaPlugin
     {
         public static C3ConfigFile C3Config { get; set; }
@@ -48,23 +45,23 @@ namespace C3Mod
             C3Tools.SetupConfig();
 
             if (C3Config.CTFEnabled)
-                GameHooks.Update += CTF.OnUpdate;
+                ServerApi.Hooks.GameUpdate.Register(this, CTF.OnUpdate);
             if (C3Config.DuelsEnabled)
-                GameHooks.Update += Duel.OnUpdate;
+				ServerApi.Hooks.GameUpdate.Register(this, Duel.OnUpdate);
             if (C3Config.OneFlagEnabled)
-                GameHooks.Update += OneFlagCTF.OnUpdate;
+                ServerApi.Hooks.GameUpdate.Register(this, OneFlagCTF.OnUpdate);
             if (C3Config.TeamDeathmatchEnabled)
-                GameHooks.Update += TDM.OnUpdate;
+                ServerApi.Hooks.GameUpdate.Register(this, TDM.OnUpdate);
             if (C3Config.MonsterApocalypseEnabled)
-                GameHooks.Update += Apocalypse.OnUpdate;
+                ServerApi.Hooks.GameUpdate.Register(this, Apocalypse.OnUpdate);
             if (C3Config.FreeForAllEnabled)
-                GameHooks.Update += FFA.OnUpdate;
+                ServerApi.Hooks.GameUpdate.Register(this, FFA.OnUpdate);
 
-            GameHooks.Update += OnUpdate;
-            GameHooks.Initialize += OnInitialize;
-            NetHooks.GreetPlayer += OnGreetPlayer;
-            ServerHooks.Leave += OnLeave;
-            NetHooks.GetData += GetData;
+            ServerApi.Hooks.GameUpdate.Register(this, OnUpdate);
+            ServerApi.Hooks.GameInitialize.Register(this, OnInitialize);
+            ServerApi.Hooks.NetGreetPlayer.Register(this, OnGreetPlayer);
+			ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
+            ServerApi.Hooks.NetGetData.Register(this, GetData);
 
             GetDataHandlers.InitGetDataHandler();
         }
@@ -73,23 +70,24 @@ namespace C3Mod
         {
             if (disposing)
             {
-                if (C3Config.CTFEnabled)
-                    GameHooks.Update -= CTF.OnUpdate;
-                if (C3Config.DuelsEnabled)
-                    GameHooks.Update -= Duel.OnUpdate;
-                if (C3Config.OneFlagEnabled)
-                    GameHooks.Update -= OneFlagCTF.OnUpdate;
-                if (C3Config.TeamDeathmatchEnabled)
-                    GameHooks.Update -= TDM.OnUpdate;
-                if (C3Config.MonsterApocalypseEnabled)
-                    GameHooks.Update -= Apocalypse.OnUpdate;
-                if (C3Config.FreeForAllEnabled)
-                    GameHooks.Update -= FFA.OnUpdate;
-                GameHooks.Update -= OnUpdate;
-                GameHooks.Initialize -= OnInitialize;
-                NetHooks.GreetPlayer -= OnGreetPlayer;
-                ServerHooks.Leave -= OnLeave;
-                NetHooks.GetData -= GetData;
+				if (C3Config.CTFEnabled)
+					ServerApi.Hooks.GameUpdate.Deregister(this, CTF.OnUpdate);
+				if (C3Config.DuelsEnabled)
+					ServerApi.Hooks.GameUpdate.Deregister(this, Duel.OnUpdate);
+				if (C3Config.OneFlagEnabled)
+					ServerApi.Hooks.GameUpdate.Deregister(this, OneFlagCTF.OnUpdate);
+				if (C3Config.TeamDeathmatchEnabled)
+					ServerApi.Hooks.GameUpdate.Deregister(this, TDM.OnUpdate);
+				if (C3Config.MonsterApocalypseEnabled)
+					ServerApi.Hooks.GameUpdate.Deregister(this, Apocalypse.OnUpdate);
+				if (C3Config.FreeForAllEnabled)
+					ServerApi.Hooks.GameUpdate.Deregister(this, FFA.OnUpdate);
+
+				ServerApi.Hooks.GameUpdate.Deregister(this, OnUpdate);
+				ServerApi.Hooks.GameInitialize.Deregister(this, OnInitialize);
+				ServerApi.Hooks.NetGreetPlayer.Deregister(this, OnGreetPlayer);
+				ServerApi.Hooks.ServerLeave.Deregister(this, OnLeave);
+				ServerApi.Hooks.NetGetData.Deregister(this, GetData);
             }
             base.Dispose(disposing);
         }
@@ -101,7 +99,7 @@ namespace C3Mod
             Order = -1;
         }
 
-        internal void OnInitialize()
+        internal void OnInitialize(EventArgs args)
         {
             if (C3Config.TeamColor1 < 1 || C3Config.TeamColor1 > 4 || C3Config.TeamColor1 == C3Config.TeamColor2 || C3Config.TeamColor2 > 4 || C3Config.TeamColor2 < 1)
                 throw new Exception("Team Colours are inccorectly set up. Check c3config.json");
@@ -443,16 +441,16 @@ namespace C3Mod
             #endregion
         }
 
-        internal void OnGreetPlayer(int who, HandledEventArgs e)
+        internal void OnGreetPlayer(GreetPlayerEventArgs args)
         {
             lock (C3Players)
-                C3Players.Add(new C3Player(who));
+                C3Players.Add(new C3Player(args.Who));
 
             if(C3Config.ShowWelcomeMessage)
-                TShock.Players[who].SendMessage("This server is running C3Mod, created by Twitchy. C3Mod is now open source.", Color.Cyan);
+				TShock.Players[args.Who].SendMessage("This server is running C3Mod, created by Twitchy. C3Mod is now open source.", Color.Cyan);
         }
         //Converted v2.2
-        internal void OnUpdate()
+		internal void OnUpdate(EventArgs args)
         {
             if (C3Config.C3TeamsLocked)
             {
@@ -475,13 +473,13 @@ namespace C3Mod
             }
         }
 
-        internal void OnLeave(int ply)
+        internal void OnLeave(LeaveEventArgs args)
         {
             lock (C3Mod.C3Players)
             {
                 for (int i = 0; i < C3Mod.C3Players.Count; i++)
                 {
-                    if (C3Mod.C3Players[i].Index.ToString() == ply.ToString())
+					if (C3Mod.C3Players[i].Index == args.Who)
                     {
                         C3Mod.C3Players.RemoveAt(i);
                         break;

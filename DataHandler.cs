@@ -17,18 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 using System;
 using System.Collections.Generic;
-using System.Xml;
-using System.Reflection;
 using Terraria;
-using Hooks;
-using MySql.Data.MySqlClient;
-using System.Threading;
-using System.ComponentModel;
-using C3Mod.GameTypes;
 using System.IO;
 using TShockAPI;
-using TShockAPI.DB;
-using TShockAPI.Net;
 using System.IO.Streams;
 
 namespace C3Mod

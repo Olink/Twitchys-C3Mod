@@ -17,7 +17,7 @@ namespace C3Mod.GameTypes
         public static DateTime voteCountDown = DateTime.UtcNow;
         public static DateTime scoreNotify = DateTime.UtcNow;
 
-        public static void OnUpdate()
+		public static void OnUpdate(EventArgs args)
         {
             lock (C3Mod.C3Players)
             {
