@@ -174,7 +174,7 @@ namespace C3Mod.GameTypes
                                     player.SpawnProtectionEnabled = true;
                                     player.Dead = false;
                                     player.TSPlayer.TpLock = false;
-                                    TShock.Players[player.Index].Teleport((int) FFASpawn.X, (int) FFASpawn.Y);
+                                    TShock.Players[player.Index].Teleport((int) FFASpawn.X*16, (int) FFASpawn.Y*16);
                                     NetMessage.SendData(4, -1, player.Index, player.PlayerName, player.Index, 0f, 0f, 0f,
                                                         0);
                                     if (C3Mod.C3Config.TPLockEnabled)
@@ -244,7 +244,7 @@ namespace C3Mod.GameTypes
 
                         if (C3Mod.C3Players[i].TSPlayer.X / 16 != FFASpawn.X || C3Mod.C3Players[i].TSPlayer.Y / 16 + 3 != FFASpawn.Y)
                         {
-                            TShock.Players[C3Mod.C3Players[i].Index].Teleport((int)FFASpawn.X, (int)FFASpawn.Y);
+                            TShock.Players[C3Mod.C3Players[i].Index].Teleport((int)FFASpawn.X*16, (int)FFASpawn.Y*16);
                         }
 
                         if (C3Mod.C3Config.TPLockEnabled) { C3Mod.C3Players[i].TSPlayer.TpLock = true; }

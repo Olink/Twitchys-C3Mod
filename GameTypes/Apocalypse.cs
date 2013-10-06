@@ -341,14 +341,14 @@ namespace C3Mod.GameTypes
                                     else
                                     {
                                         C3Tools.BroadcastMessageToGametype("apoc", player.PlayerName + ": Is out!", Color.Cyan);
-                                        player.TSPlayer.Teleport((int)SpectatorArea.X, (int)SpectatorArea.Y);
+                                        player.TSPlayer.Teleport((int)SpectatorArea.X*16, (int)SpectatorArea.Y*16);
                                         player.Dead = true;
                                     }
                                 }
                                 else
                                 {
                                     player.SendMessage("Lives left: " + (C3Mod.C3Config.MonsterApocalypseLivesPerWave - player.LivesUsed).ToString(), Color.Cyan);
-                                    player.TSPlayer.Teleport((int)PlayerSpawn.X, (int)PlayerSpawn.Y);
+                                    player.TSPlayer.Teleport((int)PlayerSpawn.X*16, (int)PlayerSpawn.Y*16);
                                 }
                             }
                         }
@@ -416,7 +416,7 @@ namespace C3Mod.GameTypes
                     C3Mod.C3Players[i].TSPlayer.TpLock = false;
                     if (C3Mod.C3Players[i].tileX != (int)(PlayerSpawn.X) || C3Mod.C3Players[i].tileY != (int)(PlayerSpawn.Y - 3))
                     {
-                        TShock.Players[C3Mod.C3Players[i].Index].Teleport((int)PlayerSpawn.X, (int)PlayerSpawn.Y);
+                        TShock.Players[C3Mod.C3Players[i].Index].Teleport((int)PlayerSpawn.X*16, (int)PlayerSpawn.Y*16);
                     }
                 }
             }

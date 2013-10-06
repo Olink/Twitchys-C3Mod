@@ -234,9 +234,9 @@ namespace C3Mod.GameTypes
                                     player.Dead = false;
                                     player.TSPlayer.TpLock = false;
                                     if (player.Team == 7)
-                                        TShock.Players[player.Index].Teleport((int) TDMSpawns[0].X, (int) TDMSpawns[0].Y);
+                                        TShock.Players[player.Index].Teleport((int) TDMSpawns[0].X*16, (int) TDMSpawns[0].Y*16);
                                     else if (player.Team == 8)
-                                        TShock.Players[player.Index].Teleport((int) TDMSpawns[1].X, (int) TDMSpawns[1].Y);
+                                        TShock.Players[player.Index].Teleport((int) TDMSpawns[1].X*16, (int) TDMSpawns[1].Y*16);
                                     NetMessage.SendData(4, -1, player.Index, player.PlayerName, player.Index, 0f, 0f, 0f,
                                                         0);
                                     if (C3Mod.C3Config.TPLockEnabled)
@@ -348,7 +348,7 @@ namespace C3Mod.GameTypes
                         C3Mod.C3Players[i].TSPlayer.TpLock = false;
                         if (C3Mod.C3Players[i].tileX != (int)(TDMSpawns[0].X) || C3Mod.C3Players[i].tileY != (int)(TDMSpawns[0].Y - 3))
                         {
-                            TShock.Players[C3Mod.C3Players[i].Index].Teleport((int)TDMSpawns[0].X, (int)TDMSpawns[0].Y);
+                            TShock.Players[C3Mod.C3Players[i].Index].Teleport((int)TDMSpawns[0].X*16, (int)TDMSpawns[0].Y*16);
                         }
                         if(C3Mod.C3Config.TPLockEnabled) { C3Mod.C3Players[i].TSPlayer.TpLock = true; }
                     }
@@ -358,7 +358,7 @@ namespace C3Mod.GameTypes
                         C3Mod.C3Players[i].TSPlayer.TpLock = false;
                         if (C3Mod.C3Players[i].tileX != (int)(TDMSpawns[1].X) || C3Mod.C3Players[i].tileY != (int)(TDMSpawns[1].Y - 3))
                         {
-                            TShock.Players[C3Mod.C3Players[i].Index].Teleport((int)TDMSpawns[1].X, (int)TDMSpawns[1].Y);
+                            TShock.Players[C3Mod.C3Players[i].Index].Teleport((int)TDMSpawns[1].X*16, (int)TDMSpawns[1].Y*16);
                         }
                         if(C3Mod.C3Config.TPLockEnabled) { C3Mod.C3Players[i].TSPlayer.TpLock = true; }
                     }

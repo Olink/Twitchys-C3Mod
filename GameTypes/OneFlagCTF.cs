@@ -177,11 +177,11 @@ namespace C3Mod.GameTypes
                                         player.TSPlayer.TpLock = false;
 
                                         if (player.Team == 5)
-                                            TShock.Players[player.Index].Teleport((int) SpawnPoint[0].X,
-                                                                                  (int) SpawnPoint[0].Y);
+                                            TShock.Players[player.Index].Teleport((int) SpawnPoint[0].X*16,
+                                                                                  (int) SpawnPoint[0].Y*16);
                                         else if (player.Team == 6)
-                                            TShock.Players[player.Index].Teleport((int) SpawnPoint[1].X,
-                                                                                  (int) SpawnPoint[1].Y);
+                                            TShock.Players[player.Index].Teleport((int) SpawnPoint[1].X*16,
+                                                                                  (int) SpawnPoint[1].Y*16);
                                         NetMessage.SendData(4, -1, player.Index, player.PlayerName, player.Index, 0f, 0f,
                                                             0f, 0);
                                         if (C3Mod.C3Config.TPLockEnabled)
@@ -605,7 +605,7 @@ namespace C3Mod.GameTypes
                     team1players++;
                     C3Mod.C3Players[i].TSPlayer.TpLock = false;
                     if (C3Mod.C3Players[i].tileX != (int)(SpawnPoint[0].X) || C3Mod.C3Players[i].tileY != (int)(SpawnPoint[0].Y - 3))
-                        TShock.Players[C3Mod.C3Players[i].Index].Teleport((int)SpawnPoint[0].X, (int)SpawnPoint[0].Y);
+                        TShock.Players[C3Mod.C3Players[i].Index].Teleport((int)SpawnPoint[0].X*16, (int)SpawnPoint[0].Y*16);
                     if (C3Mod.C3Config.TPLockEnabled) { C3Mod.C3Players[i].TSPlayer.TpLock = true; }
                 }
                 else if (C3Mod.C3Players[i].Team == 6)
@@ -613,7 +613,7 @@ namespace C3Mod.GameTypes
                     team2players++;
                     C3Mod.C3Players[i].TSPlayer.TpLock = false;
                     if (C3Mod.C3Players[i].tileX != (int)(SpawnPoint[1].X) || C3Mod.C3Players[i].tileY != (int)(SpawnPoint[1].Y - 3))
-                        TShock.Players[C3Mod.C3Players[i].Index].Teleport((int)SpawnPoint[1].X, (int)SpawnPoint[1].Y);
+                        TShock.Players[C3Mod.C3Players[i].Index].Teleport((int)SpawnPoint[1].X*16, (int)SpawnPoint[1].Y*16);
                     if (C3Mod.C3Config.TPLockEnabled) { C3Mod.C3Players[i].TSPlayer.TpLock = true; }
                 }
             }
